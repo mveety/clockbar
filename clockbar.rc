@@ -1,0 +1,6 @@
+#!/bin/rc
+
+startpid = $pid
+{
+	while() { date; sleep 1}
+} | aux/statusmsg -w $1 $user^'@'^$sysname
