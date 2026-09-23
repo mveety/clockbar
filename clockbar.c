@@ -82,30 +82,20 @@ msg(void)
 {
 	char *p;
 	Event e;
-	int k, die, parent, child;
+	int k;
 
-	parent = getpid();
-
-	die = 0;
-	switch(child = rfork(RFMEM|RFPROC)) {
-	case 0:
-		sleep(1000);
-		while(!die && (k = eread(Ekeyboard|Emouse, &e))) {
-			if(nokill==0 && k == Ekeyboard && (e.kbdc == Kdel || e.kbdc == Ketx)) {
-				postnote(PNPROC, parent, "interrupt");
-				_exits("interrupt");
-			}
+	for(;;){
+		if(ecanmouse() || ecankbd()) {
+			k = eread(Ekeyboard|Emouse, &e);
+			if(k == Ekeyboard && (e.kbdc == Kdel || e.kbdc == Ketx))
+				break;
 		}
-		_exits(0);
-	}
-	while(!die){
 		p = datestring();
 		snprint(message, Bsize, "%.*s", utflen(p), p);
 		drawmsg();
 		free(p);
 		sleep(delay);
 	}
-	postnote(PNPROC, child, "kill");
 }
 
 
